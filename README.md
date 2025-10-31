@@ -29,17 +29,17 @@ python main.py
 /for tests: python test_zip_manager.py
 
 ## Структура проекта
-├── src
-│ ├── init.py
-│ ├── untils.py
-│ └── main.py
-│
-├── tests
-│ ├── init.py
-│ └── test_zip_manager.py
-│
-├── .gitignore
-├── .pre-commit-config.yaml
-├── README.md
-├── pyproject.toml
-└── requirements.txt
+├── src  
+│ ├── init.py  
+│ ├── untils.py  
+│ └── main.py  
+│  
+├── tests  
+│ ├── init.py  
+│ └── test_zip_manager.py  
+│  
+├── .gitignore  
+├── .pre-commit-config.yaml  
+├── README.md  
+├── pyproject.toml  
+└── requirements.txt  
