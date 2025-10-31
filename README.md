@@ -31,8 +31,8 @@ python main.py
 ## Структура проекта
 ├── src  
 │ ├── init.py  
-│ ├── untils.py  
-│ └── main.py  
+│ ├── main.py  
+│ └── untils.py  
 │  
 ├── tests  
 │ ├── init.py  
