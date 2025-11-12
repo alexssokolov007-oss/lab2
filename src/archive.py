@@ -4,7 +4,8 @@ from pathlib import Path
 from errors import validate_path_exists
 
 
-def zip_folder(folder_path: str, archive_name: str = None) -> str:           '''Создает ZIP архив из папки'''
+def zip_folder(folder_path: str, archive_name: str = None) -> str:     
+    '''Создает ZIP архив из папки'''
     folder = Path(folder_path)
     validate_path_exists(folder)
 
@@ -25,7 +26,8 @@ def zip_folder(folder_path: str, archive_name: str = None) -> str:           '''
     return 'Успешно'
 
 
-def unzip_archive(archive_path: str) -> str:      '''Распаковывает ZIP архив'''
+def unzip_archive(archive_path: str) -> str:    
+    '''Распаковывает ZIP архив'''
     archive = Path(archive_path)
     validate_path_exists(archive)
 
@@ -35,7 +37,8 @@ def unzip_archive(archive_path: str) -> str:      '''Распаковывает 
     return 'Успешно'
 
 
-def tar_folder(folder_path: str, archive_name: str) -> str:      '''Создает TAR.GZ архив из папки'''
+def tar_folder(folder_path: str, archive_name: str) -> str:    
+    '''Создает TAR.GZ архив из папки'''
     folder = Path(folder_path)
     validate_path_exists(folder)
 
@@ -48,7 +51,8 @@ def tar_folder(folder_path: str, archive_name: str) -> str:      '''Создае
     return 'Успешно'
 
 
-def untar_archive(archive_path: str) -> str:    '''Распаковывает TAR.GZ архив'''
+def untar_archive(archive_path: str) -> str:  
+    '''Распаковывает TAR.GZ архив'''
     archive = Path(archive_path)
     validate_path_exists(archive)
 
