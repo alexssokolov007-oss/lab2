@@ -4,17 +4,17 @@ from src.cp import cp
 
 class TestCp:
     def test_nonexistent_source(self):
-        with patch('src.cp.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.side_effect = lambda x: False
             
             with pytest.raises(FileNotFoundError):
                 cp('nonexistent.txt', 'copy.txt')
     
     def test_copy_file(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copy2') as mock_copy, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copy2') as mock_copy, \
              patch('builtins.print') as mock_print:
             def exists_side_effect(path):
                 return path == 'source.txt'
@@ -28,9 +28,9 @@ class TestCp:
             mock_print.assert_not_called()
     
     def test_dir_without_recursive(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir:
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir:
             
             mock_exists.return_value = True
             mock_isfile.return_value = False
@@ -39,10 +39,10 @@ class TestCp:
                 cp('source_dir', 'dest_dir')
     
     def test_recursive_copy(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copytree') as mock_copytree, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copytree') as mock_copytree, \
              patch('builtins.print') as mock_print:
             mock_exists.return_value = True
             mock_isfile.return_value = False
@@ -53,10 +53,10 @@ class TestCp:
             mock_print.assert_not_called()
     
     def test_file_to_dir(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copy2') as mock_copy, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copy2') as mock_copy, \
              patch('builtins.print') as mock_print:
             
             def exists_side_effect(path):
@@ -74,10 +74,10 @@ class TestCp:
             mock_print.assert_not_called()
     
     def test_overwrite_file(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copy2') as mock_copy, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copy2') as mock_copy, \
              patch('builtins.print') as mock_print:
             
             mock_exists.return_value = True
@@ -89,10 +89,10 @@ class TestCp:
             mock_print.assert_not_called()
     
     def test_self_copy(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.os.path.commonpath') as mock_commonpath:
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('os.path.commonpath') as mock_commonpath:
             
             mock_exists.return_value = True
             mock_isfile.return_value = False
@@ -102,10 +102,10 @@ class TestCp:
                 cp('source_dir', 'source_dir/copy', recursive=True)
     
     def test_multiple_files(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copy2') as mock_copy, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copy2') as mock_copy, \
              patch('builtins.print') as mock_print:
             
             def exists_side_effect(path):
@@ -127,10 +127,10 @@ class TestCp:
             assert call('file2.txt', 'backup/file2.txt') in copy_calls
     
     def test_copy_with_spaces_in_names(self):
-        with patch('src.cp.os.path.exists') as mock_exists, \
-             patch('src.cp.os.path.isfile') as mock_isfile, \
-             patch('src.cp.os.path.isdir') as mock_isdir, \
-             patch('src.cp.shutil.copy2') as mock_copy, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('shutil.copy2') as mock_copy, \
              patch('builtins.print') as mock_print:
             
             mock_exists.return_value = True

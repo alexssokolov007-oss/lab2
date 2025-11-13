@@ -4,23 +4,23 @@ from src.cat import cat
 
 class TestCat:
     def test_nonexistent_file(self):
-        with patch('src.cat.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.return_value = False
             with pytest.raises(FileNotFoundError):
                 cat('nonexisting.txt')
     
     def test_directory_instead_file(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile:
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile:
             mock_exists.return_value = True
             mock_isfile.return_value = False
             with pytest.raises(IsADirectoryError):
                 cat('test_dir')
     
     def test_file_content(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile, \
-             patch('src.cat.os.path.getsize') as mock_getsize, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.getsize') as mock_getsize, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             mock_exists.return_value = True
@@ -38,9 +38,9 @@ class TestCat:
             mock_print.assert_any_call('world\n', end='')
     
     def test_large_file(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile, \
-             patch('src.cat.os.path.getsize') as mock_getsize:
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.getsize') as mock_getsize:
             mock_exists.return_value = True
             mock_isfile.return_value = True
             mock_getsize.return_value = 11 * 1024 * 1024 + 1
@@ -48,9 +48,9 @@ class TestCat:
                 cat('large.txt')
     
     def test_empty_file(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile, \
-             patch('src.cat.os.path.getsize') as mock_getsize, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.getsize') as mock_getsize, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             mock_exists.return_value = True
@@ -66,9 +66,9 @@ class TestCat:
             mock_print.assert_not_called()
     
     def test_special_chars(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile, \
-             patch('src.cat.os.path.getsize') as mock_getsize, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.getsize') as mock_getsize, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             mock_exists.return_value = True
@@ -86,9 +86,9 @@ class TestCat:
             mock_print.assert_any_call('฿\n', end='')
     
     def test_file_without_newline(self):
-        with patch('src.cat.os.path.exists') as mock_exists, \
-             patch('src.cat.os.path.isfile') as mock_isfile, \
-             patch('src.cat.os.path.getsize') as mock_getsize, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
+             patch('os.path.getsize') as mock_getsize, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
 

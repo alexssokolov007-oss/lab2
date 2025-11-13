@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from errors import validate_path_exists
+from .errors import validate_path_exists
 
 
 def grep(pattern: str, search_path: str, recursive: bool = False, ignore_case: bool = False) -> str:

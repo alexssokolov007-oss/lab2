@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from errors import validate_path_exists, validate_is_directory
+from .errors import validate_path_exists, validate_is_directory
 
 
 def cd(path: str = None) -> str:

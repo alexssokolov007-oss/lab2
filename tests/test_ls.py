@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import datetime
-from errors import validate_path_exists
+from src.errors import validate_path_exists
 import stat
 from constants import DATE_FORMAT
 

@@ -2,7 +2,7 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
-from constants import HISTORY_FILE, TRASH_DIR
+from .constants import HISTORY_FILE, TRASH_DIR
 
 
 class HistoryManager:

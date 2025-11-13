@@ -1,6 +1,6 @@
 from pathlib import Path
-from errors import validate_path_exists, validate_is_file
-from constants import MAX_FILE_SIZE
+from .errors import validate_path_exists, validate_is_file
+from .constants import MAX_FILE_SIZE
 
 
 def cat(file_path: str) -> str: 

@@ -1,6 +1,6 @@
 from pathlib import Path
-from errors import validate_path_exists
-from constants import PROTECTED_DIRS
+from .errors import validate_path_exists
+from .constants import PROTECTED_DIRS
 
 def rm(target: str, recursive: bool = False) -> str:
     '''Удаляет файл или директорию'''
@@ -25,10 +25,10 @@ def rm(target: str, recursive: bool = False) -> str:
             else:
                 print('Пожалуйста, введите "y" (да) или "n" (нет)')
 
-        from history_manager import safe_remove
+        from .history_manager import safe_remove
         safe_remove(target_path)
     else:
-        from history_manager import safe_remove
+        from .history_manager import safe_remove
         safe_remove(target_path)
 
     print('Успешно')

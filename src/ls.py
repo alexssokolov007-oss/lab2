@@ -1,8 +1,8 @@
 from pathlib import Path
 from datetime import datetime
-from errors import validate_path_exists
+from .errors import validate_path_exists
 import stat
-from constants import DATE_FORMAT
+from .constants import DATE_FORMAT
 
 def format_size(size: int) -> str:
     '''Форматирует размер файла в читаемый вид'''

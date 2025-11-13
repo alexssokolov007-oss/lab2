@@ -4,14 +4,14 @@ from src.grep import grep
 
 class TestGrep:
     def test_nonexistent_path(self):
-        with patch('src.grep.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.return_value = False
             with pytest.raises(FileNotFoundError):
                 grep('pattern', 'nonexistent.txt')
 
     def test_pattern_match(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isfile') as mock_isfile, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -31,8 +31,8 @@ class TestGrep:
             assert any('match here' in str(call) for call in calls)
 
     def test_no_matches(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isfile') as mock_isfile, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -50,9 +50,9 @@ class TestGrep:
             mock_print.assert_called_once_with('Совпадений не найдено')
 
     def test_recursive_search(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isdir') as mock_isdir, \
-             patch('src.grep.os.walk') as mock_walk, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('os.walk') as mock_walk, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -74,8 +74,8 @@ class TestGrep:
             assert mock_print.call_count == 2
 
     def test_ignore_case(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isfile') as mock_isfile, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -93,8 +93,8 @@ class TestGrep:
             mock_print.assert_called_once()
 
     def test_multiple_matches(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isfile') as mock_isfile, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -112,8 +112,8 @@ class TestGrep:
             assert mock_print.call_count == 2
 
     def test_regex_pattern(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isfile') as mock_isfile, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isfile') as mock_isfile, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -132,9 +132,9 @@ class TestGrep:
             assert '123-45-6789' in call_args
 
     def test_multiple_files(self):
-        with patch('src.grep.os.path.exists') as mock_exists, \
-             patch('src.grep.os.path.isdir') as mock_isdir, \
-             patch('src.grep.os.walk') as mock_walk, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
+             patch('os.walk') as mock_walk, \
              patch('builtins.open') as mock_open, \
              patch('builtins.print') as mock_print:
             
@@ -147,7 +147,7 @@ class TestGrep:
             def open_side_effect(path, *args, **kwargs):
                 mock_file = MagicMock()
                 mock_file.__enter__.return_value = mock_file
-                if 'file1' in path:
+                if 'file1' in str(path):
                     mock_file.__iter__.return_value = ['hello world\n']
                 elif 'file2' in path:
                     mock_file.__iter__.return_value = ['hello there\n']

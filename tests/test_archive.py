@@ -5,24 +5,24 @@ from src.archive import zip_folder, tar_folder, unzip_archive, untar_archive
 class TestArchive:
 
     def test_zip_nonexistent(self):
-        with patch('src.archive.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.return_value = False
             with pytest.raises(FileNotFoundError):
                 zip_folder('nonexistent_folder')
     
     def test_zip_not_folder(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir:
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir:
             mock_exists.return_value = True
             mock_isdir.return_value = False
             with pytest.raises(ValueError):
                 zip_folder('test_file.txt')
     
     def test_zip_creation(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
              patch('src.archive.zipfile.ZipFile') as mock_zipfile, \
-             patch('src.archive.os.walk') as mock_walk:
+             patch('os.walk') as mock_walk:
             mock_exists.return_value = True
             mock_isdir.return_value = True
             mock_walk.return_value = [
@@ -37,10 +37,10 @@ class TestArchive:
             assert mock_zip_instance.write.call_count == 3
                
     def test_zip_default_name(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
              patch('src.archive.zipfile.ZipFile') as mock_zipfile, \
-             patch('src.archive.os.walk') as mock_walk:
+             patch('os.walk') as mock_walk:
             mock_exists.return_value = True
             mock_isdir.return_value = True
             mock_walk.return_value = [('my_folder', [], ['file.txt'])]
@@ -51,7 +51,7 @@ class TestArchive:
             mock_zipfile.assert_called_once_with('my_folder.zip', 'w')
     
     def test_unzip_file(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
+        with patch('os.path.exists') as mock_exists, \
              patch('src.archive.zipfile.ZipFile') as mock_zipfile:
             mock_exists.return_value = True
             mock_zip_instance = MagicMock()
@@ -63,16 +63,16 @@ class TestArchive:
             mock_zip_instance.extractall.assert_called_once()
     
     def test_unzip_nonexistent(self):
-        with patch('src.archive.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.return_value = False
             with pytest.raises(FileNotFoundError):
                 unzip_archive('nonexistent.zip')
     
     def test_tar_creation(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
              patch('src.archive.tarfile.open') as mock_tarfile, \
-             patch('src.archive.os.walk') as mock_walk:
+             patch('os.walk') as mock_walk:
             mock_exists.return_value = True
             mock_isdir.return_value = True
             mock_walk.return_value = [('data', [], ['info.txt'])]
@@ -84,7 +84,7 @@ class TestArchive:
             mock_tar_instance.add.assert_called_once_with('data')
     
     def test_untar_file(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
+        with patch('os.path.exists') as mock_exists, \
              patch('src.archive.tarfile.open') as mock_tarfile:
             mock_exists.return_value = True
             mock_tar_instance = MagicMock()
@@ -95,16 +95,16 @@ class TestArchive:
             mock_tar_instance.extractall.assert_called_once()
     
     def test_untar_nonexistent(self):
-        with patch('src.archive.os.path.exists') as mock_exists:
+        with patch('os.path.exists') as mock_exists:
             mock_exists.return_value = False
             with pytest.raises(FileNotFoundError):
                 untar_archive('nonexistent.tar.gz')
     
     def test_zip_with_subdirs(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
              patch('src.archive.zipfile.ZipFile') as mock_zipfile, \
-             patch('src.archive.os.walk') as mock_walk:
+             patch('os.walk') as mock_walk:
             mock_exists.return_value = True
             mock_isdir.return_value = True
             mock_walk.return_value = [
@@ -120,10 +120,10 @@ class TestArchive:
             assert mock_zip_instance.write.call_count == 3
     
     def test_tar_with_subdirs(self):
-        with patch('src.archive.os.path.exists') as mock_exists, \
-             patch('src.archive.os.path.isdir') as mock_isdir, \
+        with patch('os.path.exists') as mock_exists, \
+             patch('os.path.isdir') as mock_isdir, \
              patch('src.archive.tarfile.open') as mock_tarfile, \
-             patch('src.archive.os.walk') as mock_walk:
+             patch('os.walk') as mock_walk:
             mock_exists.return_value = True
             mock_isdir.return_value = True
             mock_walk.return_value = [

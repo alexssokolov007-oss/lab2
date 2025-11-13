@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-from errors import validate_path_exists, validate_not_self_copy
+from .errors import validate_path_exists, validate_not_self_copy
 
 def mv(source: str, destination: str) -> str:
     '''Перемещает или переименовывает файл/директорию'''

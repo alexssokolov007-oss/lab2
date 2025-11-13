@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-from errors import validate_path_exists, validate_not_self_copy
+from .errors import validate_path_exists, validate_not_self_copy
 
 
 def cp(source: str, destination: str, recursive: bool = False) -> str:

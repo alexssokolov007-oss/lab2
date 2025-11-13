@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from constants import LOG_DIR, LOG_PATH, LOG_MAX_SIZE, LOG_BACKUP_COUNT, LOG_DATE_FORMAT
+from .constants import LOG_DIR, LOG_PATH, LOG_MAX_SIZE, LOG_BACKUP_COUNT, LOG_DATE_FORMAT
 
 def setup_logging():
     '''Настраивает логирование'''

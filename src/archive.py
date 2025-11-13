@@ -1,7 +1,7 @@
 import zipfile
 import tarfile
 from pathlib import Path
-from errors import validate_path_exists
+from .errors import validate_path_exists
 
 
 def zip_folder(folder_path: str, archive_name: str = None) -> str:     
