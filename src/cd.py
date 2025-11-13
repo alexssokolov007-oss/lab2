@@ -3,7 +3,8 @@ from pathlib import Path
 from errors import validate_path_exists, validate_is_directory
 
 
-def cd(path: str = None) -> str:  '''Изменяет текущую рабочую директорию'''
+def cd(path: str = None) -> str:
+    '''Изменяет текущую рабочую директорию'''
     if not path or path == '~':
         new_path = Path.home()
     elif path == '..':
