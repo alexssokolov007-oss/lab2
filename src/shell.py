@@ -3,7 +3,7 @@ from logsetup import setup_logging
 from ls import ls
 from cd import cd
 from cat import cat
-from cpcompany import cp
+from cp import cp
 from mv import mv
 from rm import rm
 from archive import zip_folder, unzip_archive, tar_folder, untar_archive
