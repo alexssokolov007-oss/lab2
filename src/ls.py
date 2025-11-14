@@ -1,8 +1,9 @@
 from pathlib import Path
 from datetime import datetime
-from .errors import validate_path_exists
+from src.errors import validate_path_exists
 import stat
-from .constants import DATE_FORMAT
+from src.constants import DATE_FORMAT
+
 
 def format_size(size: int) -> str:
     '''Форматирует размер файла в читаемый вид'''
@@ -11,6 +12,7 @@ def format_size(size: int) -> str:
             return f'{size:.1f}{unit}'
         size /= 1024
     return f'{size:.1f}T'
+
 
 def get_permissions(mode: int) -> str:
     '''Преобразует числовые права доступа в строку типа "drwxr-xr-x"'''
@@ -35,7 +37,8 @@ def get_permissions(mode: int) -> str:
 
     return permissions
 
-def ls(path: str = '.', long_format: bool = False) -> None:
+
+def ls(path: str = '.', long_format: bool = False, print_func=print, datetime_module=datetime) -> str:
     '''Отображает содержимое директории'''
     folder_path = Path(path)
     validate_path_exists(folder_path)
@@ -60,8 +63,10 @@ def ls(path: str = '.', long_format: bool = False) -> None:
     if long_format:
         for item in file_list:
             size_display = '<DIR>' if item['is_dir'] else format_size(item['size'])
-            date_str = datetime.fromtimestamp(item['modified']).strftime(DATE_FORMAT)
-            print(f"{item['permissions']} {size_display:>8} {date_str} {item['name']}")
+            date_str = datetime_module.fromtimestamp(item['modified']).strftime(DATE_FORMAT)
+            print_func(f"{item['permissions']} {size_display:>8} {date_str} {item['name']}")
     else:
         for item in file_list:
-            print(item['name'])
+            print_func(item['name'])
+    
+    return 'Успешно'

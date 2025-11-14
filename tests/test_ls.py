@@ -1,58 +1,70 @@
-from pathlib import Path
-from datetime import datetime
-from src.errors import validate_path_exists
-import stat
-from src.constants import DATE_FORMAT
+﻿import pytest
+from unittest.mock import Mock, patch
+from src.ls import ls, format_size, get_permissions
 
-def format_size(size:int)->str:
-    for unit in ['B','K','M','G','T']:
-        if size<1024 or unit=='T':
-            return f'{size:.1f}{unit}'
-        size/=1024
-    return f'{size:.1f}T'
 
-def get_permissions(mode:int)->str:
-    if stat.S_ISDIR(mode):
-        permissions='d'
-    elif stat.S_ISLNK(mode):
-        permissions='l'
-    else:
-        permissions='-'
-    permissions+='r' if mode&stat.S_IRUSR else '-'
-    permissions+='w' if mode&stat.S_IWUSR else '-'
-    permissions+='x' if mode&stat.S_IXUSR else '-'
-    permissions+='r' if mode&stat.S_IRGRP else '-'
-    permissions+='w' if mode&stat.S_IWGRP else '-'
-    permissions+='x' if mode&stat.S_IXGRP else '-'
-    permissions+='r' if mode&stat.S_IROTH else '-'
-    permissions+='w' if mode&stat.S_IWOTH else '-'
-    permissions+='x' if mode&stat.S_IXOTH else '-'
-    return permissions
+def test_format_size():
+    """Форматирование размеров файлов в читабельный вид"""
+    assert format_size(500) == '500.0B'
+    assert format_size(1024) == '1.0K'
+    assert format_size(1536) == '1.5K'
+    assert format_size(1048576) == '1.0M'
 
-def ls(path:str='.',long_format:bool=False)->None:
-    folder_path=Path(path)
-    validate_path_exists(folder_path)
-    file_list=[]
-    for item in folder_path.iterdir():
-        try:
-            stats=item.stat()
-            file_list.append({
-                'name':item.name,
-                'is_dir':item.is_dir(),
-                'size':stats.st_size,
-                'modified':stats.st_mtime,
-                'mode':stats.st_mode,
-                'permissions':get_permissions(stats.st_mode)
-            })
-        except OSError:
-            continue
-    file_list.sort(key=lambda x:(not x['is_dir'],x['name'].lower()))
-    if long_format:
-        for item in file_list:
-            size_display='<DIR>' if item['is_dir'] else format_size(item['size'])
-            date_str=datetime.fromtimestamp(item['modified']).strftime(DATE_FORMAT)
-            print(f"{item['permissions']} {size_display:>8} {date_str} {item['name']}")
-    else:
-        for item in file_list:
-            print(item['name'])
 
+def test_get_permissions():
+    """Преобразование числовых режимов доступа в строковый формат"""
+    dir_mode = 0o40755
+    assert get_permissions(dir_mode) == 'drwxr-xr-x'
+
+    file_mode = 0o100644
+    assert get_permissions(file_mode) == '-rw-r--r--'
+
+    link_mode = 0o120755
+    assert get_permissions(link_mode) == 'lrwxr-xr-x'
+
+
+def test_nonexistent_dir():
+    """Попытка просмотра несуществующей директории"""
+    with patch('src.ls.validate_path_exists') as mock_validate:
+        mock_validate.side_effect = FileNotFoundError("Не существует")
+        with pytest.raises(FileNotFoundError):
+            ls('nonexistent_dir')
+
+
+def test_current_dir():
+    """Вывод содержимого текущей директории"""
+    mock_print = Mock()
+    
+    with patch('src.ls.validate_path_exists'):
+        with patch('src.ls.Path') as mock_path:
+            file1 = Mock()
+            file1.name = 'file1.txt'
+            file1.is_dir.return_value = False
+            file1.stat.return_value.st_size = 100
+            file1.stat.return_value.st_mtime = 1609459200
+            file1.stat.return_value.st_mode = 0o100644
+            
+            file2 = Mock()
+            file2.name = 'file2.txt'
+            file2.is_dir.return_value = False
+            file2.stat.return_value.st_size = 200
+            file2.stat.return_value.st_mtime = 1609459200
+            file2.stat.return_value.st_mode = 0o100644
+            
+            subdir = Mock()
+            subdir.name = 'subdir'
+            subdir.is_dir.return_value = True
+            subdir.stat.return_value.st_size = 4096
+            subdir.stat.return_value.st_mtime = 1609459200
+            subdir.stat.return_value.st_mode = 0o40755
+            
+            mock_folder = Mock()
+            mock_folder.exists.return_value = True
+            mock_folder.iterdir.return_value = [file1, file2, subdir]
+            
+            mock_path.return_value = mock_folder
+            
+            result = ls(print_func=mock_print)
+            
+            assert result == 'Успешно'
+            assert mock_print.call_count == 3

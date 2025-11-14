@@ -1,21 +1,7 @@
 [
   {
-    "timestamp": "2025-11-14 18:53:37",
-    "command": "cp test1.txt backup1.txt",
-    "type": "cp",
-    "source": "test1.txt",
-    "destination": "backup1.txt"
-  },
-  {
-    "timestamp": "2025-11-14 18:53:37",
-    "command": "mv test2.txt moved_test2.txt",
-    "type": "mv",
-    "source": "test2.txt",
-    "destination": "moved_test2.txt"
-  },
-  {
-    "timestamp": "2025-11-14 18:53:37",
-    "command": "ls -la",
+    "timestamp": "2025-11-14 22:12:04",
+    "command": "cat README.md",
     "type": null,
     "source": null,
     "destination": null

@@ -1,14 +1,14 @@
 import os
-from logsetup import setup_logging
-from ls import ls
-from cd import cd
-from cat import cat
-from cp import cp
-from mv import mv
-from rm import rm
-from archive import zip_folder, unzip_archive, tar_folder, untar_archive
-from grep import grep
-from history_manager import show_history, undo_last, history_manager, clear_trash
+from src.logsetup import setup_logging
+from src.ls import ls
+from src.cd import cd
+from src.cat import cat
+from src.cp import cp
+from src.mv import mv
+from src.rm import rm
+from src.archive import zip_folder, unzip_archive, tar_folder, untar_archive
+from src.grep import grep
+from src.history_manager import show_history, undo_last, history_manager, clear_trash
 
 
 logger = setup_logging()
@@ -19,7 +19,7 @@ def parse_flags(args, flags):
     clean_args = [a for a in args if a not in flags]
     return found_flags, clean_args
 
-def run_command(command, cmd, args):
+def run_command(command, cmd, args, history_mgr=None):
     '''Выполняет команду'''
     result = None
     try:
@@ -47,7 +47,8 @@ def run_command(command, cmd, args):
         elif cmd == 'rm':
             flags, clean_args = parse_flags(args, ['-r'])
             history_manager.add_command(command, 'rm', source=clean_args[0])
-            result = rm(clean_args[0], recursive=flags['-r'])
+            # history_manager -> rm для тестирования
+            result = rm(clean_args[0], recursive=flags['-r'], history_manager_module=history_mgr or history_manager)
 
         elif cmd == 'zip':
             if len(args) == 1:
@@ -57,23 +58,23 @@ def run_command(command, cmd, args):
                 result = zip_folder(args[0], args[1])
                 print(result)
             else:
-                raise ValueError('Неверное использование команды. Сделайте так: zip <папка> [<архив.zip>]')
+                raise ValueError('неверное использование команды. Делай так: zip <папка> [<архив.zip>]')
 
         elif cmd == 'unzip':
             if len(args) != 1:
-                raise ValueError('Неверное использование команды. Сделайте так: unzip <архив.zip>')
+                raise ValueError('неверное использование команды. Делай так: unzip <архив.zip>')
             result = unzip_archive(args[0])
             print(result)
 
         elif cmd == 'tar':
             if len(args) != 2:
-                raise ValueError('Неверное использование команды. Сделайте так: tar <папка> <архив.tar.gz>')
+                raise ValueError('неверное использование команды. Делай так: tar <папка> <архив.tar.gz>')
             result = tar_folder(args[0], args[1])
             print(result)
 
         elif cmd == 'untar':
             if len(args) != 1:
-                raise ValueError('Неверное использование команды. Сделайте так: untar <архив.tar.gz>')
+                raise ValueError('неверное использование команды. Делай так: untar <архив.tar.gz>')
             result = untar_archive(args[0])
             print(result)
 
@@ -111,7 +112,7 @@ def run_command(command, cmd, args):
 
 def main():
     '''Основная функция shell'''
-    print('Консольный Shell. Для завершения работы программы напишите "exit".')
+    print('Консольный Shell. Для завершения работы программы напиши "exit".')
     print('Доступные команды: ls, cd, cat, cp, mv, rm, zip, unzip, tar, untar, grep, history, undo, clear_trash')
 
     while True:

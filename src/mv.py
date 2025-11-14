@@ -1,8 +1,9 @@
 import shutil
 from pathlib import Path
-from .errors import validate_path_exists, validate_not_self_copy
+from src.errors import validate_path_exists, validate_not_self_copy
 
-def mv(source: str, destination: str) -> str:
+
+def mv(source: str, destination: str, shutil_module=shutil, print_func=print) -> str:
     '''Перемещает или переименовывает файл/директорию'''
     src_path = Path(source)
     dst_path = Path(destination)
@@ -14,6 +15,6 @@ def mv(source: str, destination: str) -> str:
     if dst_path.exists() and dst_path.is_dir():
         dst_path = dst_path / src_path.name
 
-    shutil.move(str(src_path), str(dst_path))
-    print('Успешно')
+    shutil_module.move(str(src_path), str(dst_path))
+    print_func('Успешно')
     return 'Успешно'

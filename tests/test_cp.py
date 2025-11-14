@@ -1,58 +1,61 @@
-﻿import pytest
+import pytest
 from unittest.mock import Mock, patch
 from src.cp import cp
 
 
-class TestCp:
-    def test_nonexistent_source(self):
-        with patch('src.cp.validate_path_exists') as mock_validate:
-            mock_validate.side_effect = FileNotFoundError("Не существует")
-            with pytest.raises(FileNotFoundError):
-                cp('nonexistent.txt', 'destination.txt')
+def test_nonexistent_source():
+    """Попытка копирования несуществующего файла/директории"""
+    with pytest.raises(FileNotFoundError):
+        cp('nonexistent.txt', 'destination.txt')
 
-    def test_copy_file(self):
-        with patch('src.cp.validate_path_exists'):
-            with patch('src.cp.Path') as mock_path:
-                with patch('src.cp.shutil') as mock_shutil:
-                    with patch('builtins.print') as mock_print:
-                        src_mock = Mock()
-                        src_mock.exists.return_value = True
-                        src_mock.is_dir.return_value = False
-                        
-                        mock_path.side_effect = [src_mock, Mock()]
-                        
-                        result = cp('source.txt', 'dest.txt')
-                        
-                        assert result == 'Успешно'
-                        mock_shutil.copy2.assert_called_once()
-                        mock_print.assert_called_with('Успешно')
 
-    def test_copy_dir_without_recursive(self):
-        with patch('src.cp.validate_path_exists'):
-            with patch('src.cp.Path') as mock_path:
-                src_mock = Mock()
-                src_mock.exists.return_value = True
-                src_mock.is_dir.return_value = True
-                
-                mock_path.return_value = src_mock
-                
-                with pytest.raises(NotADirectoryError, match='Для копирования директорий используйте флаг -r'):
-                    cp('source_dir', 'dest_dir')
+def test_copy_file(tmp_path, capsys):
+    """Успешное копирование обычного файла"""
+    src_file = tmp_path / "source.txt"
+    src_file.write_text("test content")
+    dst_file = tmp_path / "dest.txt"
+    
+    result = cp(str(src_file), str(dst_file))
+    
+    assert result == 'Успешно'
+    assert dst_file.exists()
+    assert dst_file.read_text() == "test content"
+    captured = capsys.readouterr()
+    assert 'Успешно' in captured.out
 
-    def test_copy_dir_with_recursive(self):
-        with patch('src.cp.validate_path_exists'):
-            with patch('src.cp.validate_not_self_copy'):
-                with patch('src.cp.Path') as mock_path:
-                    with patch('src.cp.shutil') as mock_shutil:
-                        with patch('builtins.print') as mock_print:
-                            src_mock = Mock()
-                            src_mock.exists.return_value = True
-                            src_mock.is_dir.return_value = True
-                            
-                            mock_path.side_effect = [src_mock, Mock()]
-                            
-                            result = cp('source_dir', 'dest_dir', recursive=True)
-                            
-                            assert result == 'Успешно'
-                            mock_shutil.copytree.assert_called_once()
-                            mock_print.assert_called_with('Успешно')
+
+def test_copy_dir_without_recursive(tmp_path):
+    """Попытка копирования директории без флага -r"""
+    src_dir = tmp_path / "source_dir"
+    src_dir.mkdir()
+    
+    with pytest.raises(NotADirectoryError, match='Для копирования директорий используйте флаг -r'):
+        cp(str(src_dir), str(tmp_path / "dest_dir"))
+
+
+def test_copy_dir_with_recursive(tmp_path, capsys):
+    """Успешное рекурсивное копирование директории с флагом -r"""
+    src_dir = tmp_path / "source_dir"
+    src_dir.mkdir()
+    (src_dir / "file1.txt").write_text("content1")
+    (src_dir / "file2.txt").write_text("content2")
+    
+    dst_dir = tmp_path / "dest_dir"
+    
+    result = cp(str(src_dir), str(dst_dir), recursive=True)
+    
+    assert result == 'Успешно'
+    assert dst_dir.exists()
+    assert (dst_dir / "file1.txt").exists()
+    assert (dst_dir / "file2.txt").exists()
+    captured = capsys.readouterr()
+    assert 'Успешно' in captured.out
+
+
+def test_self_copy(tmp_path):
+    """Попытка копирования директории в саму себя"""
+    src_dir = tmp_path / "source_dir"
+    src_dir.mkdir()
+    
+    with pytest.raises(ValueError, match='Нельзя копировать директорию в саму себя'):
+        cp(str(src_dir), str(src_dir / "subdir"), recursive=True)

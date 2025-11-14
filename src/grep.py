@@ -1,25 +1,26 @@
 import re
 from pathlib import Path
-from .errors import validate_path_exists
+from src.errors import validate_path_exists
 
 
-def grep(pattern: str, search_path: str, recursive: bool = False, ignore_case: bool = False) -> str:
+def grep(pattern: str, search_path: str, recursive: bool = False, 
+         ignore_case: bool = False, re_module=re, open_func=open, print_func=print) -> str:
     '''Ищет строки по шаблону в файлах'''
     path_obj = Path(search_path)
     validate_path_exists(path_obj)
 
-    flags = re.IGNORECASE if ignore_case else 0
-    regex = re.compile(pattern, flags)
+    flags = re_module.IGNORECASE if ignore_case else 0
+    regex = re_module.compile(pattern, flags)
     found_matches = False
 
     def search_in_file(file_path):
         nonlocal found_matches
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            with open_func(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 for line_num, line in enumerate(file, 1):
                     if regex.search(line):
                         found_matches = True
-                        print(f'{file_path}:{line_num}: {line.strip()}')
+                        print_func(f'{file_path}:{line_num}: {line.strip()}')
         except (UnicodeDecodeError, PermissionError):
             pass
 
@@ -32,6 +33,6 @@ def grep(pattern: str, search_path: str, recursive: bool = False, ignore_case: b
                 search_in_file(file_item)
 
     if not found_matches:
-        print('Совпадений не найдено')
+        print_func('Совпадений не найдено')
 
     return 'Успешно'

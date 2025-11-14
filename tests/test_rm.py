@@ -5,55 +5,80 @@ from src.rm import rm
 
 class TestRm:
     def test_nonexistent_file(self):
-        with patch('src.rm.validate_path_exists') as mock_validate:
-            mock_validate.side_effect = FileNotFoundError("Не существует")
-            with pytest.raises(FileNotFoundError):
-                rm('nonexistent.txt')
+        """Попытка удаления несуществующего файла/папки"""
+        with pytest.raises(FileNotFoundError):
+            rm('nonexistent.txt')
 
-    def test_dir_without_recursive(self):
-        with patch('src.rm.validate_path_exists'):
-            with patch('src.rm.Path') as mock_path:
-                mock_instance = Mock()
-                mock_instance.exists.return_value = True
-                mock_instance.is_dir.return_value = True
-                mock_instance.resolve.return_value = Mock()
+    def test_dir_without_recursive(self, tmp_path):
+        """Попытка удаления директории без флага -r"""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        with pytest.raises(ValueError, match='Используйте -r для удаления директорий'):
+            rm(str(test_dir))
+
+    def test_remove_file_simple(self, tmp_path, capsys):
+        """Успешное удаление обычного файла"""
+        test_file = tmp_path / "test_file.txt"
+        test_file.write_text("content")
+        
+        # Мокаем safe_remove чтобы избежать реального удаления
+        with patch('src.rm.safe_remove') as mock_safe_remove:
+            result = rm(str(test_file))
+            
+            assert result == 'Успешно'
+            mock_safe_remove.assert_called_once()
+            captured = capsys.readouterr()
+            assert 'Успешно' in captured.out
+
+    def test_cancel_delete_simple(self, tmp_path, capsys):
+        """Отмена удаления директории при ответе 'n' на запрос подтверждения"""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        def mock_input(prompt):
+            print(prompt, end='')  #проверка
+            return 'n'
+        
+        with patch('src.rm.safe_remove') as mock_safe_remove:
+            with patch('src.rm.input', mock_input):
+                result = rm(str(test_dir), recursive=True, input_func=mock_input)
                 
-                mock_path.return_value.expanduser.return_value.resolve.return_value = mock_instance
+                assert result == 'Отменено'
+                mock_safe_remove.assert_not_called()
+                captured = capsys.readouterr()
+                assert 'Отменено' in captured.out
+                assert 'Удалить директорию' in captured.out
+
+    def test_confirm_delete_simple(self, tmp_path, capsys):
+        """Подтверждение удаления директории при ответе 'y'"""
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        
+        # monkeypatch подменяет input
+        def mock_input(prompt):
+            print(prompt, end='')  # проверка
+            return 'y'
+
+        with patch('src.rm.safe_remove') as mock_safe_remove:
+            with patch('src.rm.input', mock_input):
+                result = rm(str(test_dir), recursive=True, input_func=mock_input)
                 
-                with pytest.raises(ValueError, match='Используйте -r для удаления директорий'):
-                    rm('test_dir')
+                assert result == 'Успешно'
+                mock_safe_remove.assert_called_once()
+                captured = capsys.readouterr()
+                assert 'Успешно' in captured.out
+                assert 'Удалить директорию' in captured.out
 
-    def test_remove_file_simple(self):
-        with patch('src.rm.validate_path_exists'):
-            with patch('src.rm.Path') as mock_path:
-                with patch('src.history_manager.safe_remove') as mock_safe_remove:
-                    with patch('builtins.print') as mock_print:
-                        mock_instance = Mock()
-                        mock_instance.exists.return_value = True
-                        mock_instance.is_dir.return_value = False
-                        mock_instance.resolve.return_value = mock_instance
-                        
-                        mock_path.return_value.expanduser.return_value.resolve.return_value = mock_instance
-                        
-                        result = rm('test_file.txt')
-                        
-                        assert result == 'Успешно'
-                        mock_print.assert_called_with('Успешно')
-
-    def test_cancel_delete_simple(self):
-        with patch('src.rm.validate_path_exists'):
-            with patch('src.rm.Path') as mock_path:
-                with patch('builtins.input') as mock_input:
-                    with patch('builtins.print') as mock_print:
-                        mock_instance = Mock()
-                        mock_instance.exists.return_value = True
-                        mock_instance.is_dir.return_value = True
-                        mock_instance.resolve.return_value = mock_instance
-                        
-                        mock_path.return_value.expanduser.return_value.resolve.return_value = mock_instance
-                        mock_input.return_value = 'n'
-                        
-                        result = rm('test_dir', recursive=True)
-                        
-                        assert result == 'Отменено'
-                        mock_print.assert_called_with('Отменено')
+    def test_remove_file_without_confirmation(self, tmp_path, capsys):
+        """Удаление файла без подтверждения"""
+        test_file = tmp_path / "test_file.txt"
+        test_file.write_text("content")
+        
+        with patch('src.rm.safe_remove') as mock_safe_remove:
+            result = rm(str(test_file))
+            
+            assert result == 'Успешно'
+            mock_safe_remove.assert_called_once()
+            captured = capsys.readouterr()
+            assert 'Успешно' in captured.out

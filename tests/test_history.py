@@ -1,114 +1,104 @@
 ﻿import pytest
-from unittest.mock import patch, MagicMock, call
-from src.history_manager import show_history, history_manager, HistoryManager
-from pathlib import Path
+from unittest.mock import Mock, patch
+from src.history_manager import HistoryManager, show_history, undo_last
 
-# Создаем необходимые папки для тестов
-Path(".trash").mkdir(exist_ok=True)
-Path(".history").touch(exist_ok=True)
 
 class TestHistoryManager:
-    def test_display_history(self):
-        # Сохраняем оригинальное состояние
-        original_history = history_manager.history.copy()
+    def test_show_history_empty(self):
+        """Пустая история"""
+        mock_print = Mock()
+        manager = HistoryManager()
+        manager.history = []
         
-        try:
-            # Устанавливаем тестовые данные
-            history_manager.history = [
-                {'command': 'ls', 'timestamp': '2023-01-01 10:00:00'},
-                {'command': 'cd /tmp', 'timestamp': '2023-01-01 10:01:00'}
-            ]
-            
-            with patch('builtins.print') as mock_print:
-                result = show_history()
-                
-                assert result == 'Успешно'
-                # Проверяем что print был вызван минимум 2 раза
-                assert mock_print.call_count >= 2
-                
-        finally:
-            # Восстанавливаем оригинальную историю
-            history_manager.history = original_history
+        manager.show_history(print_func=mock_print)
+        
+        mock_print.assert_called_with('История пуста')
 
-    def test_display_history_empty(self):
-        # Сохраняем оригинальное состояние
-        original_history = history_manager.history.copy()
+    def test_show_history_with_entries(self):
+        """История с записями"""
+        mock_print = Mock()
+        manager = HistoryManager()
+        manager.history = [
+            {'timestamp': '2024-01-01 10:00:00', 'command': 'ls'},
+            {'timestamp': '2024-01-01 10:01:00', 'command': 'cd /tmp'}
+        ]
         
-        try:
-            history_manager.history = []
-            
-            with patch('builtins.print') as mock_print:
-                result = show_history()
-                
-                assert result == 'Успешно'
-                mock_print.assert_called_once_with('История пуста')
-                
-        finally:
-            history_manager.history = original_history
+        manager.show_history(print_func=mock_print)
+        
+        assert mock_print.call_count == 3
+        mock_print.assert_any_call('Последние 2 команд:')
 
     def test_undo_empty(self):
-        # Сохраняем оригинальное состояние
-        original_history = history_manager.history.copy()
+        """Отмена при пустой истории"""
+        mock_print = Mock()
+        manager = HistoryManager()
+        manager.history = []
         
-        try:
-            history_manager.history = []
-            
-            with patch('builtins.print') as mock_print:
-                from src.history_manager import undo_last
-                result = undo_last()
-                
-                assert "нет операций для отмены" in result.lower()
-                mock_print.assert_called_once()
-                
-        finally:
-            history_manager.history = original_history
+        result = manager.undo_last(print_func=mock_print)
+        
+        assert 'нет операций для отмены' in result
+        mock_print.assert_called_with('Ошибка: нет операций для отмены')
 
-    def test_undo_with_history(self):
-        """Упрощенный тест - просто проверяем что функция не падает"""
-        # Сохраняем оригинальное состояние
-        original_history = history_manager.history.copy()
+    def test_add_command(self):
+        """Добавление команды"""
+        manager = HistoryManager()
+        manager.history = []
+        manager.history_file = Mock()
         
-        try:
-            # Создаем простую историю без сложных операций
-            history_manager.history = [
-                {
-                    'command': 'ls', 
-                    'timestamp': '2023-01-01 10:00:00',
-                    'type': None,  # Простая команда без операции
-                    'source': None,
-                    'destination': None
-                }
-            ]
-            
-            with patch('builtins.print'):
-                from src.history_manager import undo_last
-                # Просто вызываем функцию - она должна вернуть сообщение об ошибке
-                result = undo_last()
-                
-                # Проверяем что вернулось какое-то сообщение
-                assert result is not None
-                assert isinstance(result, str)
-                
-        finally:
-            history_manager.history = original_history
+        manager.add_command('ls -l', 'ls')
+        
+        assert len(manager.history) == 1
+        assert manager.history[0]['command'] == 'ls -l'
+        manager.history_file.write_text.assert_called_once()
 
-    def test_show_history_with_count(self):
-        """Тест с указанием количества записей"""
-        original_history = history_manager.history.copy()
-        
-        try:
-            # Создаем больше записей
-            history_manager.history = [
-                {'command': f'cmd{i}', 'timestamp': f'2023-01-01 10:0{i}:00'} 
-                for i in range(15)
-            ]
-            
-            with patch('builtins.print') as mock_print:
-                result = show_history(5)  # Показываем только 5 записей
-                
+    def test_undo_cp_operation(self):
+        """Отмена копирования"""
+        mock_print = Mock()
+        manager = HistoryManager()
+        manager.history = [
+            {'type': 'cp', 'source': 'src.txt', 'destination': 'dst.txt'}
+        ]
+        manager.shutil = Mock()
+
+        with patch('src.history_manager.Path') as mock_path:
+            mock_dst = Mock()
+            mock_dst.exists.return_value = True
+            mock_path.return_value = mock_dst
+
+            with patch.object(manager, 'safe_remove') as mock_safe_remove:
+                result = manager.undo_last(print_func=mock_print)
+
                 assert result == 'Успешно'
-                # Должно быть 6 вызовов: заголовок + 5 команд
-                assert mock_print.call_count == 6
-                
-        finally:
-            history_manager.history = original_history
+                mock_safe_remove.assert_called_once()
+
+    def test_safe_remove(self):
+        """Безопасное удаление"""
+        manager = HistoryManager()
+        manager.shutil = Mock()
+
+        with patch('src.history_manager.TRASH_DIR') as mock_trash_dir:
+            mock_trash_path = Mock()
+            mock_trash_path.exists.return_value = False
+            mock_trash_dir.__truediv__.return_value = mock_trash_path
+
+            manager.safe_remove('test.txt')
+            
+            manager.shutil.move.assert_called_once()
+
+
+def test_show_history_function():
+    with patch('src.history_manager.history_manager') as mock_manager:
+        result = show_history()
+        
+        assert result == 'Успешно'
+        mock_manager.show_history.assert_called_once_with(10)
+
+
+def test_undo_last_function():
+    with patch('src.history_manager.history_manager') as mock_manager:
+        mock_manager.undo_last.return_value = 'Успешно'
+        
+        result = undo_last()
+        
+        assert result == 'Успешно'
+        mock_manager.undo_last.assert_called_once()
