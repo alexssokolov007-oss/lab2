@@ -20,3 +20,4 @@ def ls_instance():
     """Фикстура для экземпляра команды ls"""
     from src.commands.builtin_ls import Ls
     return Ls()
+
