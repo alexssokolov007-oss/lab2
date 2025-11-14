@@ -19,3 +19,9 @@ PROTECTED_DIRS = [Path('/'), Path.home()]
 
 DATE_FORMAT = '%d %b %H:%M'  # ls
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'  # логи
+
+LOG_DIR = Path('logs')
+LOG_PATH = LOG_DIR / 'shell.log'
+LOG_MAX_SIZE = 1 * 1024 * 1024
+LOG_BACKUP_COUNT = 5
+LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
