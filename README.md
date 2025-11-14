@@ -1,4 +1,4 @@
-# Лабораторная работа №2 — Shell-эмулятор
+# Лабораторная работа №2 
 
 Простой консольный Shell с поддержкой основных команд работы с файловой системой, архивации, поиска и истории команд.
 
@@ -10,36 +10,37 @@
 ```
 lab2/
 ├── src/
-│ ├── __init__.py
 │ ├── .trash
-│ ├── shell.log
-│ ├── constants.py
-│ ├── main.py
-│ ├── shell.py
-│ ├── ls.py
-│ ├── cd.py
+│ ├── __init__.py
+│ ├── .history
+│ ├── archive.py
 │ ├── cat.py
+│ ├── cd.py
+│ ├── constants.py
 │ ├── cp.py
+│ ├── errors.py
+│ ├── grep.py
+│ ├── history_manager.py
+│ ├── logsetup.py
+│ ├── ls.py
+│ ├── main.py
 │ ├── mv.py
 │ ├── rm.py
-│ ├── grep.py
-│ ├── archive.py
-│ ├── history_manager.py
-│ ├── logger.py
-│ └── errors.py
+│ ├── setup.py
+│ └── shell.py
 ├── tests/
 │ ├── __init__.py
 │ ├── conftest.py
-│ ├── test_ls.py
-│ ├── test_cd.py
-│ ├── test_cat.py
-│ ├── test_cp.py
-│ ├── test_mv.py
-│ ├── test_rm.py
-│ ├── test_grep.py
 │ ├── test_archive.py
+│ ├── test_cat.py
+│ ├── test_cd.py
+│ ├── test_cp.py
 │ ├── test_errors.py
-│ └── test_history.py
+│ ├── test_grep.py
+│ ├── test_history.py
+│ ├── test_ls.py
+│ ├── test_mv.py
+│ └── test_rm.py
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
@@ -50,7 +51,7 @@ lab2/
 
 ## Используемые технологии
 - Python 3.13+ (совместимость указана в pyproject.toml)
-- pytest — модульное тестирование (73 теста)
+- pytest — модульное тестирование (58 тестов)
 - mypy, ruff — статический анализ и линтинг
 - pre-commit — автоматические хуки проверки кода
 
@@ -118,7 +119,7 @@ lab2/
     - История сохраняется в `.history` между запусками
 
 11. **Очистка корзины**
-    - `clear_trash` - Команда для удаления всего содержимого в .trash
+    - Очистка корзины происходит автоматически или через safe_remove
 
 
 ## Принятые решения и допущения
@@ -143,9 +144,9 @@ lab2/
 ## Тестирование
 
 ### Структура тестов
-- **73 модульных тестов** с полным покрытием функциональности
+- **58 модульных тестов** с полным покрытием функциональности
 - Тесты для успешных сценариев и ошибок
-- Использование fake filesystem
+- Использование mocks
 
 ### Запуск тестов
 
