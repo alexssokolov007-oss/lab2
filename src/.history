@@ -1,9 +1,0 @@
-[
-  {
-    "timestamp": "2025-11-14 22:12:04",
-    "command": "cat README.md",
-    "type": null,
-    "source": null,
-    "destination": null
-  }
-]
